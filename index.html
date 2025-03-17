@@ -12,7 +12,7 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link rel="stylesheet" href="bluescript.css">
 
@@ -21,8 +21,8 @@
 
 <body>
 
-    <script>        
-        window.addEventListener('load', function() {
+    <script>
+        window.addEventListener('load', function () {
             const questionsGrid = document.querySelector('.questions-grid');
             for (let i = 1; i <= 150; i++) {
                 const button = document.createElement('button');
@@ -30,7 +30,348 @@
                 button.classList.add('question-button');
                 questionsGrid.appendChild(button);
             }
+
+            if (localStorage.getItem("questions") == null) {
+                var questions = [];
+                for (let i = 1; i <= 200; i++) {
+                    questions[i] = {
+                        questionNumber: i,
+                        questionClass: ["A"],
+                        questionComplementClass: ["A"],
+                        questionDifficulty: 0
+                    };
+                }
+            } else {
+                let localStorageItem = localStorage.getItem("questions");
+                var questions = JSON.parse(localStorageItem);
+            }
+
+            var questionsComplementClassGrid = document.querySelector('.questions-complement-class-grid');
+            var questionsClassGrid = document.querySelector('.questions-class-grid');
+
+            var classOpenButton = document.querySelector('.class-open');
+            var complementClassOpenButton = document.querySelector('.complement-class-open');
+
+            classOpenButton.addEventListener('click', () => {
+                questionsClassGrid.classList.toggle('questions-class-grid-open');
+                if (questionsClassGrid.classList.contains('questions-class-grid-open')) {
+                    classOpenButton.textContent = 'keyboard_arrow_up';
+                } else {
+                    classOpenButton.textContent = 'keyboard_arrow_down';
+                }
+            });
+
+            complementClassOpenButton.addEventListener('click', () => {
+                questionsComplementClassGrid.classList.toggle('questions-complement-class-grid-open');
+                if (questionsComplementClassGrid.classList.contains('questions-complement-class-grid-open')) {
+                    complementClassOpenButton.textContent = 'keyboard_arrow_up';
+                } else {
+                    complementClassOpenButton.textContent = 'keyboard_arrow_down';
+                }
+            });
+
+            var menuOpenButton = document.querySelector('.menu-open');
+            var menuBackground = document.querySelector('.menu-background');
+
+            menuOpenButton.addEventListener('click', () => {
+                menuBackground.classList.remove('menu-background-close');
+            });
+
+            menuBackground.addEventListener('click', () => {
+                menuBackground.classList.add('menu-background-close');
+            });
+
+            var clearDataButton = document.querySelector('.clear-data-button');
+            var sourceCodeButton = document.querySelector('.source-code-button');
+            var feedbackButton = document.querySelector('.feedback-button');
+
+            clearDataButton.addEventListener('click', () => {
+                localStorage.clear();
+                location.reload();
+            });
+
+            sourceCodeButton.addEventListener('click', () => {
+                window.open('https://github.com/singEulerITY/DeimosphericDenudation');
+            });
+
+            feedbackButton.addEventListener('click', () => {
+                window.open('mailto:singeulerity@gmail.com?subject=Deimospheric%20Denudation%20Feedback');
+            });
+
+            var questionButtons = document.querySelectorAll('.question-button');
+            var questionClassButtons = document.querySelectorAll('.question-grade-bar button');
+            var questionComplementClassButtons = document.querySelectorAll('.question-complement-grade-bar button');
+            var questionDifficultySlider = document.querySelector('.slider');
+
+
+            questionButtons.forEach((button, index) => {
+                button.classList.add('question-button-' + questions[index + 1].questionDifficulty.toString());
+            });
+
+            updateList();
+
+            var questionNumber0 = document.querySelector('.question-number0');
+            var questionNumber1 = document.querySelector('.question-number1');
+
+            questionNumber0.addEventListener('click', () => {
+                var questionNumber = parseInt(questionNumber0.textContent);
+                if (questionNumber >= 1 && questionNumber <= questionButtons.length) {
+                    questionButtons[questionNumber - 1].click();
+                }
+            });
+
+            questionNumber1.addEventListener('click', () => {
+                var questionNumber = parseInt(questionNumber1.textContent);
+                if (questionNumber >= 1 && questionNumber <= questionButtons.length) {
+                    questionButtons[questionNumber - 1].click();
+                }
+            });
+
+
+            questionButtons.forEach((button, index) => {
+                button.addEventListener('click', () => {
+                    document.querySelector('.question-number').textContent = index + 1;
+                    document.querySelector('.question-number0').textContent = index;
+                    document.querySelector('.question-number1').textContent = index + 2;
+
+                    questionButtons.forEach((button, index) => {
+                        button.classList.remove('question-button-selected');
+                    });
+
+                    button.classList.add('question-button-selected');
+
+                    let quesClass = questions[index + 1].questionClass;
+                    let quesClassComplement = questions[index + 1].questionComplementClass;
+                    let quesDifficulty = questions[index + 1].questionDifficulty;
+
+                    questionClassButtons.forEach((button, index) => {
+                        if (quesClass.includes(button.textContent)) {
+                            button.classList.add('selected');
+                        } else {
+                            button.classList.remove('selected');
+                        }
+                    });
+
+                    questionComplementClassButtons.forEach((button, index) => {
+                        if (quesClassComplement.includes(button.textContent)) {
+                            button.classList.add('selected');
+                        } else {
+                            button.classList.remove('selected');
+                        }
+                    });
+
+                    questionDifficultySlider.value = quesDifficulty;
+
+                    console.log(quesClass);
+                    console.log(quesClassComplement);
+                    console.log(quesDifficulty);
+                });
+            });
+
+            questionClassButtons.forEach((button, index) => {
+                button.addEventListener('click', () => {
+                    var questionNumber = parseInt(document.querySelector('.question-number').textContent);
+                    if (questions[questionNumber].questionClass.includes(button.textContent)) {
+                        questions[questionNumber].questionClass = questions[questionNumber].questionClass.filter(item => item !== button.textContent);
+                        button.classList.remove('selected');
+                    } else {
+                        questions[questionNumber].questionClass.push(button.textContent);
+                        button.classList.add('selected');
+                    }
+                    updateList();
+                });
+            });
+
+            questionComplementClassButtons.forEach((button, index) => {
+                button.addEventListener('click', () => {
+                    var questionNumber = parseInt(document.querySelector('.question-number').textContent);
+                    if (questions[questionNumber].questionComplementClass.includes(button.textContent)) {
+                        questions[questionNumber].questionComplementClass = questions[questionNumber].questionComplementClass.filter(item => item !== button.textContent);
+                        button.classList.remove('selected');
+                    } else {
+                        questions[questionNumber].questionComplementClass.push(button.textContent);
+                        button.classList.add('selected');
+                    }
+
+                    updateList();
+                });
+            });
+
+            questionDifficultySlider.addEventListener('input', () => {
+                var questionNumber = parseInt(document.querySelector('.question-number').textContent);
+                questions[questionNumber].questionDifficulty = questionDifficultySlider.value;
+                updateList();
+            });
+
+
+            function updateList() {
+                let myJSON = JSON.stringify(questions);
+                localStorage.setItem("questions", myJSON);
+
+                let text = localStorage.getItem("questions");
+                questions = JSON.parse(text);
+
+                questionButtons.forEach((button, index) => {
+                    button.classList.add('question-button-' + questions[index + 1].questionDifficulty.toString());
+                });
+
+                updateClassLists();
+                updateComplementClassLists();
+            }
         });
+
+        function updateClassLists() {
+
+            var classA = [];
+            var classB = [];
+            var classC = [];
+            var classD = [];
+
+            let questions = JSON.parse(localStorage.getItem("questions"));
+
+            for (let i = 1; i <= 150; i++) {
+                if (questions[i].questionClass.includes('A')) {
+                    classA.push(i);
+                }
+                if (questions[i].questionClass.includes('B')) {
+                    classB.push(i);
+                }
+                if (questions[i].questionClass.includes('C')) {
+                    classC.push(i);
+                }
+                if (questions[i].questionClass.includes('D')) {
+                    classD.push(i);
+                }
+            }
+
+            console.log(classA);
+            console.log(classB);
+            console.log(classC);
+            console.log(classD);
+
+
+            const questionsClassGrid = document.querySelector('.questions-class-grid');
+            questionsClassGrid.innerHTML = '';
+
+            for (let i = 0; i < classA.length; i++) {
+                console.log(classA[i]);
+                const classButton = document.createElement('button');
+                classButton.textContent = classA[i];
+                classButton.classList.add('question-class-button');
+                classButton.classList.add('class-A-button');
+                questionsClassGrid.appendChild(classButton);
+            }
+
+            for (let i = 0; i < classB.length; i++) {
+                console.log(classB[i]);
+                const classButton = document.createElement('button');
+                classButton.textContent = classB[i];
+                classButton.classList.add('question-class-button');
+                classButton.classList.add('class-B-button');
+                questionsClassGrid.appendChild(classButton);
+            }
+
+            for (let i = 0; i < classC.length; i++) {
+                console.log(classC[i]);
+                const classButton = document.createElement('button');
+                classButton.textContent = classC[i];
+                classButton.classList.add('question-class-button');
+                classButton.classList.add('class-C-button');
+                questionsClassGrid.appendChild(classButton);
+            }
+
+            for (let i = 0; i < classD.length; i++) {
+                console.log(classD[i]);
+                const classButton = document.createElement('button');
+                classButton.textContent = classD[i];
+                classButton.classList.add('question-class-button');
+                classButton.classList.add('class-D-button');
+                questionsClassGrid.appendChild(classButton);
+            }
+        }
+
+        function updateComplementClassLists() {
+
+            var classA = [];
+            var classB = [];
+            var classC = [];
+            var classD = [];
+
+            let questions = JSON.parse(localStorage.getItem("questions"));
+
+            for (let i = 1; i <= 150; i++) {
+                if (questions[i].questionComplementClass.includes('A')) {
+                    classA.push(i);
+                }
+                if (questions[i].questionComplementClass.includes('B')) {
+                    classB.push(i);
+                }
+                if (questions[i].questionComplementClass.includes('C')) {
+                    classC.push(i);
+                }
+                if (questions[i].questionComplementClass.includes('D')) {
+                    classD.push(i);
+                }
+            }
+
+            console.log(classA);
+            console.log(classB);
+            console.log(classC);
+            console.log(classD);
+
+
+            const questionsComplementClassGrid = document.querySelector('.questions-complement-class-grid');
+            questionsComplementClassGrid.innerHTML = '';
+
+            for (let i = 0; i < classA.length; i++) {
+                console.log(classA[i]);
+                const classButton = document.createElement('button');
+                classButton.textContent = classA[i];
+                classButton.classList.add('question-class-button');
+                classButton.classList.add('class-A-button');
+                questionsComplementClassGrid.appendChild(classButton);
+            }
+
+            for (let i = 0; i < classB.length; i++) {
+                console.log(classB[i]);
+                const classButton = document.createElement('button');
+                classButton.textContent = classB[i];
+                classButton.classList.add('question-class-button');
+                classButton.classList.add('class-B-button');
+                questionsComplementClassGrid.appendChild(classButton);
+            }
+
+            for (let i = 0; i < classC.length; i++) {
+                console.log(classC[i]);
+                const classButton = document.createElement('button');
+                classButton.textContent = classC[i];
+                classButton.classList.add('question-class-button');
+                classButton.classList.add('class-C-button');
+                questionsComplementClassGrid.appendChild(classButton);
+            }
+
+            for (let i = 0; i < classD.length; i++) {
+                console.log(classD[i]);
+                const classButton = document.createElement('button');
+                classButton.textContent = classD[i];
+                classButton.classList.add('question-class-button');
+                classButton.classList.add('class-D-button');
+                questionsComplementClassGrid.appendChild(classButton);
+            }
+        }
+
+
+        // FOR LOCAL STORAGE
+
+        /*
+        const myObj = { name: "John", age: 31, city: "New York" };
+        const myJSON = JSON.stringify(myObj);
+        localStorage.setItem("testJSON", myJSON);
+
+        let text = localStorage.getItem("testJSON");
+        let obj = JSON.parse(text);
+        document.getElementById("demo").innerHTML = obj.name;
+        */
 
     </script>
 
@@ -38,6 +379,17 @@
         <button class="header-button material-symbols-outlined menu-button menu-open">menu</button>
         <div class="header-logo montserrat">Deimospheric Denudation</div>
     </header>
+
+    <div class="menu-background menu-background-close">
+        <div class="menu">
+            <div class="menu-header montserrat">MENU</div>
+            <div class="menu-item clear-data-button"><span class="material-symbols-outlined">playlist_remove</span>Clear
+                Data</div>
+            <div class="menu-item source-code-button"><span class="material-symbols-outlined">data_object</span>Source
+                Code</div>
+            <div class="menu-item feedback-button"><span class="material-symbols-outlined">Feedback</span>Feedback</div>
+        </div>
+    </div>
 
     <div class="input-field">
 
@@ -77,8 +429,24 @@
         </div>
     </div>
 
-    <div class="questions-grid">
-        
+    <div class="questions-grid"></div>
+
+    <div class="questions-class-sort montserrat">
+        <header>
+            <button class="material-symbols-outlined header-button class-open">
+                keyboard_arrow_down</button>
+            <div class="montserrat" style="margin-left: 10px;">QUESTIONS CLASS</div>
+        </header>
+        <div class="questions-class-grid"></div>
+    </div>
+
+    <div class="questions-class-sort montserrat">
+        <header>
+            <button class="material-symbols-outlined header-button  complement-class-open">
+                keyboard_arrow_down</button>
+            <div class="montserrat" style="margin-left: 10px;">QUESTIONS COMPLEMENT CLASS</div>
+        </header>
+        <div class="questions-complement-class-grid"></div>
     </div>
 </body>
 
