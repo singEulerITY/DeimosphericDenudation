@@ -28,6 +28,9 @@
                 const button = document.createElement('button');
                 button.textContent = i;
                 button.classList.add('question-button');
+                if (i==53) {
+                    button.classList.add('question-button-selected');
+                }
                 questionsGrid.appendChild(button);
             }
 
@@ -36,8 +39,8 @@
                 for (let i = 1; i <= 200; i++) {
                     questions[i] = {
                         questionNumber: i,
-                        questionClass: ["A"],
-                        questionComplementClass: ["A"],
+                        questionClass: [],
+                        questionComplementClass: [],
                         questionDifficulty: 0
                     };
                 }
@@ -212,6 +215,10 @@
                 questions = JSON.parse(text);
 
                 questionButtons.forEach((button, index) => {
+                    // Remove all potential difficulty-related classes
+                    button.classList.remove('question-button-0', 'question-button-10', 'question-button-20', 'question-button-30');
+
+                    // Add the updated difficulty class
                     button.classList.add('question-button-' + questions[index + 1].questionDifficulty.toString());
                 });
 
