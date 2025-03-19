@@ -200,24 +200,32 @@ header {
 .class-A-button {
     color: purple;
     border: 1px solid purple;
+    background: url('A.png');
+    background-size: cover;
     background-color: #aba2ff;
 }
 
 .class-B-button {
     color: purple;
     border: 1px solid purple;
+    background: url('B.png');
+    background-size: cover;
     background-color: #d49fff;
 }
 
 .class-C-button {
     color: purple;
     border: 1px solid purple;
+    background: url('C.png');
+    background-size: cover;
     background-color: #ffa9e8;
 }
 
 .class-D-button {
     color: purple;
     border: 1px solid purple;
+    background: url('D.png');
+    background-size: cover;
     background-color: #ffa9a9;
 }
 
